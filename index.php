@@ -3,6 +3,8 @@
 require('NotusFlow.php');
 
 $output = '';
+$error = '';
+$info = '';
 
 $flow = new NotusFlow();
 //var_dump($flow->getBranches());
@@ -17,20 +19,28 @@ if (!isset($_POST['action'])) {
 	exit;
 }
 
-switch(strtolower($_POST['action'])) {
-	case 'changebranch':
-		$output = $flow->changeBranch($_POST['branch']);
-		$output .= "\nBranch changed";
-		break;
-	case 'gitpull':
-		$output = $flow->pullRepo();
-		$output .= "\ngit pull finished ok";
-		break;
-	case 'clearcache':
-		$output = $flow->clearDiskCache();
-		$output .= "rm core/cache/*\n";
-		$output .= "./concat_files.sh";
-		break;
+try {
+
+	switch(strtolower($_POST['action'])) {
+		case 'changebranch':
+			$output = $flow->changeBranch($_POST['branch']);
+			$flow->pullRepo();
+			$flow->clearDiskCache();
+			$info = "Branch changed";
+			break;
+		case 'gitpull':
+			$output = $flow->pullRepo();
+			$info = "git pull finished successfully";
+			break;
+		case 'clearcache':
+			$output = $flow->clearDiskCache();
+			$output .= "rm core/cache/*\n";
+			$output .= "./concat_files.sh";
+			$info = "Cache cleared";
+			break;
+	}
+} catch (Exception $e) {
+	$error = $e->getMessage();
 }
 
 require('template.php');

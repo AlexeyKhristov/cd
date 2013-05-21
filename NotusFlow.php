@@ -18,24 +18,43 @@ class NotusFlow {
 		return $out;
 	}
 
+	private function _getRawRemoteBranches() {
+		$out = array();
+		$ret = 0;
+		exec('git branch --remotes', $out, $ret);
+
+		if ($ret !== 0)
+			throw new Exception('git branch return error');
+
+		return $out;
+	}
+
 	private function _runCommand($command) {
 		$out = array();
-                $ret = 0;
-                exec($command, $out, $ret);
+        $ret = 0;
+        exec($command, $out, $ret);
 
-                if ($ret !== 0)
-                    throw new Exception("Command '$command' return an error: " . implode("\n", $out));
+        if ($ret !== 0)
+            throw new Exception("Command '$command' return an error: " . implode("\n", $out));
 
-                return $out;
+        return $out;
 	}
 
 	public function getBranches() {
 		$result = array();
-		$branches = $this->_getRawBranches();
+		$branches = $this->_getRawRemoteBranches();
 
 		foreach($branches as $branch) {
-			$result[] = ltrim($branch, '* ');
+
+			if (strpos($branch, 'HEAD') !== false)
+				continue;
+
+			if (stripos($branch, 'origin/') !== false) {
+				$branch = str_replace('origin/', '', $branch);
+				$result[] = ltrim($branch, '* ');
+			}
 		}
+
 		return $result;
 	}
 
@@ -43,46 +62,51 @@ class NotusFlow {
 		$result = array();
 		$branches = $this->_getRawBranches();
 
-                foreach($branches as $branch) {
+        foreach($branches as $branch) {
 			if ($branch[0] === '*')
 				return ltrim($branch, '* ');
-                }
+        }
 		return '(no branch)';
 	}
 
 	public function fetchRepo() {
-                $out = array();
-                $ret = 0;
-                exec('git fetch', $out, $ret);
+        $out = array();
+        $ret = 0;
+        exec('git fetch', $out, $ret);
 
-                if ($ret !== 0)
-                    throw new Exception('git fetch return error');
+        if ($ret !== 0)
+            throw new Exception('git fetch return error');
 	}
 
 	public function pullRepo() {
-                $out = array();
-                $ret = 0;
-                exec('git pull 2>&1', $out, $ret);
+        $out = array();
+        $ret = 0;
+        exec('git pull 2>&1', $out, $ret);
 
-                if ($ret !== 0)
-                    throw new Exception('git pull return error');
+        if ($ret !== 0)
+            throw new Exception('git pull return an error: ' . implode("\n", $out));
 
-                return implode("\n", $out);
+        return implode("\n", $out);
 	}
 
 	public function changeBranch($newBranch) {
-                $out = array();
-                $ret = 0;
-                exec('git checkout ' . $newBranch . ' 2>&1', $out, $ret);
+        $out = array();
+        $ret = 0;
+        exec('git checkout ' . $newBranch . ' 2>&1', $out, $ret);
 
-                if ($ret !== 0)
-                    throw new Exception('git checkout return error');
+        if ($ret !== 0)
+            throw new Exception('git checkout return an error: ' . implode("\n", $out));
 
-                return implode("\n", $out);
+        return implode("\n", $out);
 	}
 
 	public function clearDiskCache() {
 		$this->_runCommand('./concat_files.sh');
+		try {
+			$this->_runCommand('ls ' . $this->_path . '/core/cache/*');
+		} catch (Exception $e) {
+			return;
+		}
 		$this->_runCommand('rm ' . $this->_path . '/core/cache/*');
 	}
 }

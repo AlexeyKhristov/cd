@@ -13,6 +13,20 @@
       <? endif; ?>
 
       <div class="container">
+        <? if (!empty($error)) : ?>
+          <div class="alert alert-error" data-dismiss="alert">
+            <?=$error?>
+            <a class="close" data-dismiss="alert" href="#">&times;</a>
+          </div>
+        <? endif; ?>
+
+        <? if (!empty($info)) : ?>
+          <div class="alert alert-info">
+            <?=$info?>
+            <a class="close" data-dismiss="alert" href="#">&times;</a>
+          </div>
+        <? endif; ?>
+
         <h1>Current branch: <?=$flow->getCurrentBranch()?></h1>
         <form action="/" method="post">
           <input type="hidden" name="action" value="changeBranch">
