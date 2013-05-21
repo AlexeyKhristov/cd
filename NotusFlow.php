@@ -48,6 +48,8 @@ class NotusFlow {
 
 			if (strpos($branch, 'HEAD') !== false)
 				continue;
+			if (strpos($branch, 'old_origin') !== false)
+				continue;
 
 			if (stripos($branch, 'origin/') !== false) {
 				$branch = str_replace('origin/', '', $branch);
