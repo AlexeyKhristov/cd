@@ -110,5 +110,12 @@ class NotusFlow {
 			return;
 		}
 		$this->_runCommand('rm ' . $this->_path . '/core/cache/*');
+		// memcached clear
+                try {
+                        $this->_runCommand('ls ' . $this->_path . '');
+                } catch (Exception $e) {
+                        return;
+                }
+		$this->_runCommand('./memcached_clear.sh');
 	}
 }
