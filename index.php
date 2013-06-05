@@ -34,7 +34,7 @@ try {
 			break;
 		case 'clearcache':
 			$output = $flow->clearDiskCache();
-			$output .= "./concat_files.sh && rm core/cache/*";
+			$output .= "./concat_files.sh && rm core/cache/* && ./memcached_clear.sh";
 			$info = "Cache cleared";
 			break;
 	}
