@@ -103,13 +103,7 @@ class NotusFlow {
 	}
 
 	public function clearDiskCache() {
-		$this->_runCommand('./concat_files.sh');
-		try {
-			$this->_runCommand('ls ' . $this->_path . '/core/cache/*');
-		} catch (Exception $e) {
-			return;
-		}
-		$this->_runCommand('rm ' . $this->_path . '/core/cache/*');
+		$this->_runCommand('./vendor/bin/phing deploy');
 		// memcached clear
                 try {
                         $this->_runCommand('ls ' . $this->_path . '');
