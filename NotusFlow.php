@@ -83,7 +83,7 @@ class NotusFlow {
 	public function pullRepo() {
         $out = array();
         $ret = 0;
-        exec('git pull 2>&1', $out, $ret);
+        exec('git pull 2>&1 && git submodule update 2>&1', $out, $ret);
 
         if ($ret !== 0)
             throw new Exception('git pull return an error: ' . implode("\n", $out));
@@ -103,7 +103,7 @@ class NotusFlow {
 	}
 
 	public function clearDiskCache() {
-		$this->_runCommand('./vendor/bin/phing deploy');
+		$this->_runCommand('cd master && ./vendor/bin/phing deploy');
 		// memcached clear
                 try {
                         $this->_runCommand('ls ' . $this->_path . '');
